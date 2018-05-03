@@ -1,0 +1,29 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+		<ScoreFunction name="talaris_rwt" weights="talaris2013.wts" >
+			<Reweight scoretype="coordinate_constraint" weight="1.0" />
+		</ScoreFunction>
+	</SCOREFXNS>
+	<FILTERS>
+	</FILTERS>
+	<TASKOPERATIONS>
+		<InitializeFromCommandline name="ifcl"/>
+		<RestrictToInterfaceVector name="rtiv" chain1_num="1,2" chain2_num="3" CB_dist_cutoff="10.0" nearby_atom_cutoff="5.5" vector_angle_cutoff="75" vector_dist_cutoff="9.0" />
+		<RestrictToRepacking name="rtr"/>
+	</TASKOPERATIONS>
+	<MOVERS>
+		<FastRelax name="relax" task_operations="ifcl,rtr" scorefxn="talaris_rwt" />
+		<ddG name="ddg" per_residue_ddg="0" repack_unbound="1" chain_num="3" task_operations="rtiv,ifcl,rtr" scorefxn="talaris2013" />
+		<AtomCoordinateCstMover name="cst" />
+		<VirtualRoot name="root" />
+	</MOVERS>
+	<APPLY_TO_POSE>
+	</APPLY_TO_POSE>
+	<PROTOCOLS>
+		<Add mover_name="root" />
+		<Add mover_name="cst" />
+		<Add mover_name="relax"/>
+		<Add mover_name="ddg" />
+	</PROTOCOLS>
+	<OUTPUT scorefxn="talaris2013" />
+</ROSETTASCRIPTS>

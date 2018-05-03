@@ -1,0 +1,26 @@
+#input databases
+-in::file::vall /path/to/Rosetta/tools/fragment_tools/vall.jul19.2011.gz
+ 
+#query-related input files ##generated in the previous step
+-in::file::checkpoint A_Uruguay_23_2009.checkpoint
+-in::file::fasta A_Uruguay_23_2009.fasta
+-frags::ss_pred A_Uruguay_23_2009.psipred_ss2 psipred A_Uruguay_23_2009.jufo9d_ss jufo 
+ 
+#the name root for the output fragment files
+-out::file::frag_prefix A_Uruguay_23_2009_frags
+ 
+#show score components for each selected fragment
+-frags::describe_fragments A_Uruguay_23_2009_frags.fsc
+ 
+#weights
+-frags::scoring::config ./fragment_picker_quota.wghts
+ 
+#we need 9-mers and 3-mers ##could be 5-mers or whatever you need
+-frags::frag_sizes 9 3
+ 
+#select 200 fragments from 1000 candidates. we need more candidates than fragments to fill quota pools
+-frags::n_candidates 1000
+-frags::n_frags 200
+ 
+#quota.def file defines the shares between different quota pools. the total should be 1.0
+-frags::picking::quota_config_file ./fragment_picker_quota.cfg

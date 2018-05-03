@@ -1,0 +1,58 @@
+<ROSETTASCRIPTS>
+	<SCOREFXNS>
+		<ScoreFunction name="talaris_rwt" weights="talaris2013_cst.wts" />
+	</SCOREFXNS>
+	<TASKOPERATIONS>
+		<InitializeFromCommandline name="ifcl" />
+		<RestrictToRepacking name="rtr" />
+		<RestrictToInterfaceVector name="rtiv" chain1_num="1,2" chain2_num="3" CB_dist_cutoff="10.0" nearby_atom_cutoff="9.0" vector_angle_cutoff="75" vector_dist_cutoff="9.0" />
+		<ReadResfile name="repackable" filename="C05_repack.resfile" />
+	</TASKOPERATIONS>
+	<MOVERS>
+		<Backrub name="backrub_man" pivot_residues="106-118" />
+		<GenericMonteCarlo name="backrub" mover_name="backrub_man" scorefxn_name="talaris2013" trials="500" temperature="0.8" recover_low="1" />
+
+		<PackRotamersMover name="design" scorefxn="talaris_rwt" task_operations="ifcl" />
+
+		<MSDMover name="msd1" design_mover="design" post_mover="backrub" constraint_weight="0.5" resfiles="C05.resfile" debug="0" />
+		<MSDMover name="msd2" design_mover="design" post_mover="backrub" constraint_weight="1" resfiles="C05.resfile" debug="0" />
+		<MSDMover name="msd3" design_mover="design" post_mover="backrub" constraint_weight="1.5" resfiles="C05.resfile" debug="0" />
+		<MSDMover name="msd4" design_mover="design" post_mover="backrub" constraint_weight="2" resfiles="C05.resfile" debug="0" />
+
+		<FindConsensusSequence name="finish" scorefxn="talaris2013" resfiles="C05.resfile" debug="1" task_operations="ifcl,repackable" repack_one_res="1" />
+
+		<FastRelax name="rlx" task_operations="ifcl,rtr,rtiv" scorefxn="talaris_rwt" />
+
+		<FavorSequenceProfile name="fnr" pdbname="C05.pdb" weight="0.25" scaling="prob" matrix="IDENTITY" />
+		<ClearConstraintsMover name="clear_cst" />
+
+		<InterfaceAnalyzerMover name="ddg" scorefxn="talaris2013" packstat="0" pack_input="0" pack_separated="1" fixedchains="H,L" />
+	
+		<AtomCoordinateCstMover name="cst" coord_dev="1.0" />
+		<VirtualRoot name="root" removable="1" />
+		<VirtualRoot name="rmroot" remove="1" />
+	</MOVERS>
+	<FILTERS>
+		<FitnessFilter name="fitness" output_to_scorefile="1" />
+	</FILTERS>
+	<PROTOCOLS>
+		<Add mover="fnr" />
+		<Add mover="msd1" />
+		<Add mover="msd2" />
+
+		<Add mover="msd3" />
+		<Add mover="msd4" />
+		<Add mover="finish" />
+
+		<Add mover="root" />
+		<Add mover="cst" />
+		<Add mover="rlx" />		
+		<Add mover="rmroot" />
+
+		<Add mover="ddg" />
+		
+		<Add filter="fitness" />
+
+	</PROTOCOLS>
+	<OUTPUT scorefxn="talaris2013" />
+</ROSETTASCRIPTS>

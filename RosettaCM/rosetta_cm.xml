@@ -1,0 +1,34 @@
+<dock_design>
+    <TASKOPERATIONS>
+    </TASKOPERATIONS>
+    <SCOREFXNS>
+        <stage1 weights="stage1.wts" symmetric=0>
+            <Reweight scoretype=atom_pair_constraint weight=1/>
+        </stage1>
+        <stage2 weights="stage2.wts" symmetric=0>
+            <Reweight scoretype=atom_pair_constraint weight=0.5/>
+        </stage2>
+        <fullatom weights="stage3.wts" symmetric=0>
+            <Reweight scoretype=atom_pair_constraint weight=0.5/>
+        </fullatom>
+    </SCOREFXNS>
+    <FILTERS>
+    </FILTERS>
+    <MOVERS>
+        <Hybridize name=hybridize stage1_scorefxn=stage1 stage2_scorefxn=stage2 fa_scorefxn=fullatom batch=1 stage1_increase_cycles=1.0 stage2_increase_cycles=1.0 linmin_only=1>
+            <Fragments 3mers="A_Uruguay_23_2009_frags.200.3mers" 9mers="A_Uruguay_23_2009_frags.200.9mers"/>
+			<Template pdb="A_Uruguay_23_2009_on_4eda.pdb" cst_file="AUTO" weight=   1.000 />
+<Template pdb="A_Uruguay_23_2009_on_3m6s.pdb" cst_file="AUTO" weight=   1.000 />
+<Template pdb="A_Uruguay_23_2009_on_3mlh.pdb" cst_file="AUTO" weight=   1.000 />
+<Template pdb="A_Uruguay_23_2009_on_4lxv.pdb" cst_file="AUTO" weight=   1.000 />
+<Template pdb="A_Uruguay_23_2009_on_3ubq.pdb" cst_file="AUTO" weight=   1.000 />
+
+        </Hybridize>
+    </MOVERS>
+    <APPLY_TO_POSE>
+    </APPLY_TO_POSE>
+    <PROTOCOLS>
+        <Add mover=hybridize/>
+    </PROTOCOLS>
+	<OUTPUT scorefxn=talaris2013 />
+</dock_design>

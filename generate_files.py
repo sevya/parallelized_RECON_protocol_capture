@@ -1,16 +1,32 @@
 #! /usr/bin/env python2.7
 
 import sys, os, shutil
-sys.path.append('/dors/meilerlab/apps/Linux2/x86_64/python/2.7.6/lib/python2.7/site-packages/')
 from Bio import pairwise2
 from Bio import SeqIO
 import multiprocessing as mp
 import time
 import numpy as np
 
+'''
+Calculate the sequence similarity between two strings
+
+@param a string A
+@param b string B
+
+@return sequence similarity between the two
+'''
 def hamming( a, b ):
 	return np.mean([aa==bb for aa,bb in zip(a,b)])
 
+'''
+Make a Grishin format sequence alignment
+
+@param target_id
+@param target_aln
+@param template_id
+@param template_aln
+@param outfile name of output grishin file
+'''
 def make_grishin( target_id, target_aln, template_id, template_aln, outfile ):
 	with open(outfile, 'w') as out:
 		out.write('## '+target_id+' '+template_id+'.pdb\n')
@@ -50,6 +66,13 @@ def define_disulfides( target_id, target_aln, template_aln_4hkx ):
 			## Adjust index to be one-based
 			out.write(str(a+1)+' '+str(b+1)+'\n')
 
+'''
+@file generate_files.py
+@brief Generates files for RosettaCM. This script has several hardcoded values that
+should be replaced for use in other cases. 
+@author Alex Sevy (alex.sevy@gmail.com)
+'''
+
 if __name__ == '__main__':
 	input_file = sys.argv[1]
 	
@@ -57,11 +80,14 @@ if __name__ == '__main__':
 
 	target_sequences = [(str(item.id),str(item.seq)) 
 					for item in SeqIO.parse(input_file+'.fasta','fasta')]
+
+	## NOTE: H1_templates.fasta is hardcoded and should be replaced
 	template_sequences = {str(item.id): str(item.seq)
 					for item in SeqIO.parse('H1_templates.fasta','fasta')}
 
+	## For each available template sequences, find the sequence similarity to 
+	## each and use the top 5 for model construction
 	for target_id, target_seq in target_sequences:
-
 		similarities = []
 		for template_id, template_seq in template_sequences.items():
 			alignment = pairwise2.align.localxs(target_seq, template_seq,-2, -5)
@@ -77,7 +103,7 @@ if __name__ == '__main__':
 		for template_id, target_aln, template_aln, similarity in similarities[:5]:
 			make_grishin( target_id, target_aln, template_id, template_aln, target_id+'_'+template_id+'.grishin')
 			
-		## Make disulfides based on 4hkx
+		## Make disulfides based on 4hkx - this is hardcoded and should be changed
 		alignment = pairwise2.align.localxs(target_seq, template_sequences['4hkx'],-2, -5)
 		target_aln = alignment[0][0]
 		aln_4hkx = alignment[0][1]

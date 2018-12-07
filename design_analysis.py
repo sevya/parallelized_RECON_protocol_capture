@@ -7,6 +7,13 @@ import subprocess, gzip
 import multiprocessing as mp
 from sevy_utils import Utils
 
+'''
+@file design_analysis.py
+@brief Runs analysis on the output of protein design in Rosetta
+Given a set of models, generates a FASTA file of residues at all
+designable positions and creates a weblogo of those residues.
+@author Alex Sevy (alex.sevy@gmail.com)
+'''
 if __name__ == '__main__':
 	usage = "%prog [options] <pdb_files>"
 	parser=OptionParser(usage)
@@ -20,6 +27,7 @@ if __name__ == '__main__':
 	parser.add_option('--units',dest='units',help='What units for the weblogo? bits or probability, default bits',default='bits')
 	parser.add_option('--weblogo-path',dest='weblogo_path',help='Path to the weblogo executable',default='weblogo')
 	(options,args)= parser.parse_args()
+
 	## Step 1: parse resfile to see which chains and residues I am designing
 	if options.resfile == '':
 		designable_residues = Utils.parse_designable_residues( args[0], [('*', '*')] )
@@ -27,7 +35,6 @@ if __name__ == '__main__':
 		designable_residues = Utils.parse_resfile( options.resfile )
 
 	## Step 2: find out the sequence of all of my models
-
 	def partial_sequence_from_pdb( arg ):
 		return Utils.sequence_from_pdb( arg, designable_residues )
 		
@@ -93,17 +100,16 @@ if __name__ == '__main__':
 			resno, chain = des
 			annotation.append( chain+str(resno)+':'+currentAA )
 
-	if options.units == 'bits':
-		weblogo_command = [weblogo_path, '-f', options.prefix+'.fasta', '-o', options.prefix+'_seq_log.'+options.format, '-F', options.format, '-A', 'protein', '-U', 'bits', '-i', '1', '-s', 'large', '-t', options.title, '--annotate', ','.join(annotation), '-S', '4.32', '--errorbars', 'NO', '-c', 'chemistry', '--fineprint', 'sevy_analysis', '--scale-width', 'Yes', '--composition', 'equiprobable', '-n', '40', '-W', '30', '-y', 'bits']
+	## Set command line options based on whether they want bits or probability
+	scale = '4.32' if options.units=='bits' else 1.0
+	label = 'Bits' if options.units=='bits' else 'Frequency'
 
-	elif options.units == 'probability':
-		weblogo_command = [weblogo_path, '-f', options.prefix+'.fasta', '-o', options.prefix+'_seq_log.'+options.format, '-F', options.format, '-A', 'protein', '-U', 'probability', '-i', '1', '-s', 'large', '-t', options.title, '--annotate', ','.join(annotation), '-S', '1.0', '--errorbars', 'NO', '-c', 'chemistry', '--fineprint', 'sevy_analysis', '--scale-width', 'Yes', '--composition', 'equiprobable', '-n', '40', '-W', '30', '-y', 'Frequency']
+	weblogo_command = [weblogo_path, '-f', options.prefix+'.fasta', '-o', options.prefix+'_seq_log.'+options.format, '-F', options.format, '-A', 'protein', '-U', options.units, '-i', '1', '-s', 'large', '-t', options.title, '--annotate', ','.join(annotation), '-S', scale, '--errorbars', 'NO', '-c', 'chemistry', '--fineprint', 'sevy_analysis', '--scale-width', 'Yes', '--composition', 'equiprobable', '-n', '40', '-W', '30', '-y', label]
 
 	if options.debug:
 		print ' '.join( weblogo_command )
 
 	output = subprocess.check_output(weblogo_command)
-	# print output
 
 
 

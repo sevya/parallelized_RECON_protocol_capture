@@ -2,7 +2,6 @@
 
 from Bio.PDB import PDBParser
 from Bio.PDB import PDBExceptions
-# from Bio.PDB import Polypeptide
 import warnings
 import sys
 import math
@@ -12,7 +11,15 @@ standard_aa_names={"ALA":"A", "CYS":"C", "ASP":"D", "GLU":"E", "PHE":"F", "GLY":
                    "LEU":"L", "MET":"M", "ASN":"N", "PRO":"P", "GLN":"Q", "ARG":"R", "SER":"S", "THR":"T", "VAL":"V",
                    "TRP":"W", "TYR":"Y", "TYS":"Y"}
 
-## Returns the minimal distance between any pair of atoms between two residues
+'''
+Calculates the minimal distance between any pair of atoms in two residues
+
+@param pose BioPDB Model object to operate on
+@param residue1 Residue 1 to measure distance. Residue is a tuple of (position, chain, aminoacid_id)
+@param residue2 Residue 2 to measure distance. Residue is a tuple of (position, chain, aminoacid_id)
+
+@return int value of the minimum pairwise distance of atoms in two residues
+'''
 def min_distance( pose, residue1, residue2 ):
 	min_dist = -1
 	seqpos1, chain1, resid1 = residue1
@@ -28,7 +35,17 @@ def min_distance( pose, residue1, residue2 ):
 
 	return min_dist
 
-## Returns two lists with residues in a complex split by their interface side
+'''
+Splits all the residues in a complex into two sides, divided by
+which side of the protein-protein interface they are located on
+
+@param pose BioPDB Model object to operate on
+@param side1_chains List of chains that constitute side1
+@param side2_chains List of chains that constitute side2
+
+@return Two lists of residues in a tuple, where the first list is all
+the residues on side1, and the second all the residues on side2
+'''
 def get_residue_sides( pose, side1_chains, side2_chains ):
 	side1_residues = []
 	for chain in side1_chains:
@@ -45,7 +62,19 @@ def get_residue_sides( pose, side1_chains, side2_chains ):
 			side2_residues.append( ( str(seqpos), chain, resid ) )
 	return side1_residues, side2_residues
 
-## Returns a list of residues with an atom within 4 A of an atom on the opposing chain
+'''
+Calculates all residues with a heavy atom within X A of an atom
+on the opposing chain, where X A is defined by nearby_atom_cutoff
+
+@param pose BioPDB Model object to operate on
+@param side1_chains List of chains that constitute side1
+@param side2_chains List of chains that constitute side2
+@param nearby_atom_cutoff distance cutoff
+
+@return Two lists of residues in a tuple, where the first list is all
+the residues on side1 that fall in the distance cutoff, 
+and the second all the residues on side2 that fall in the distance cutoff.
+'''
 def sc_distance_cutoff( pose, side1_chains, side2_chains, nearby_atom_cutoff ):
 	side1_residues, side2_residues = get_residue_sides( pose, side1_chains, side2_chains )
 	
@@ -58,7 +87,19 @@ def sc_distance_cutoff( pose, side1_chains, side2_chains, nearby_atom_cutoff ):
 				side2_interface.append( res2 )
 	return [ set( side1_interface ), set( side2_interface ) ]
 
-## Returns a list of interface residues with a Ca within the cutoff of the opposing side
+'''
+Calculates all residues with a Calpha within X A of an atom
+on the opposing chain, where X A is defined by nearby_atom_cutoff
+
+@param pose BioPDB Model object to operate on
+@param side1_chains List of chains that constitute side1
+@param side2_chains List of chains that constitute side2
+@param ca_cutoff distance cutoff
+
+@return Two lists of residues in a tuple, where the first list is all
+the residues on side1 that fall in the distance cutoff, 
+and the second all the residues on side2 that fall in the distance cutoff.
+'''
 def ca_distance_cutoff( pose, side1_chains, side2_chains, ca_cutoff ):
 	side1_residues, side2_residues = get_residue_sides( pose, side1_chains, side2_chains )
 	
@@ -73,7 +114,19 @@ def ca_distance_cutoff( pose, side1_chains, side2_chains, ca_cutoff ):
 				side2_interface.append( res2 )
 	return [ set( side1_interface ), set( side2_interface ) ]
 
-## Returns a list of interface residues with a Cb within the cutoff of the opposing side
+'''
+Calculates all residues with a Cbeta within X A of an atom
+on the opposing chain, where X A is defined by nearby_atom_cutoff
+
+@param pose BioPDB Model object to operate on
+@param side1_chains List of chains that constitute side1
+@param side2_chains List of chains that constitute side2
+@param ca_cutoff distance cutoff
+
+@return Two lists of residues in a tuple, where the first list is all
+the residues on side1 that fall in the distance cutoff, 
+and the second all the residues on side2 that fall in the distance cutoff.
+'''
 def cb_distance_cutoff( pose, side1_chains, side2_chains, cb_cutoff ):
 
 	side1_residues, side2_residues = get_residue_sides( pose, side1_chains, side2_chains )
@@ -90,6 +143,16 @@ def cb_distance_cutoff( pose, side1_chains, side2_chains, cb_cutoff ):
 				side2_interface.append( res2 )
 	return [ set( side1_interface ), set( side2_interface ) ]
 
+
+
+'''
+@file define_interface.py
+@brief Generates a resfile defining a protein-protein interface.
+Calculates the interface based on a side chain distance cutoff.
+Can also be set to repack the residues on the opposing side of
+the interface.
+@author Alex Sevy (alex.sevy@gmail.com)
+'''
 if __name__ == '__main__':
 	usage = "%prog [options] <pdb_file>"
 	parser=OptionParser(usage)
@@ -112,13 +175,18 @@ if __name__ == '__main__':
 	print 'Processing',args[0]
 	parser = PDBParser()
 	structure = parser.get_structure( 'X', args[ 0 ] )
-	side1, side2 = sc_distance_cutoff( structure[ 0 ], list( options.side1 ), list( options.side2 ), float(options.nearby_atom_cutoff) )
-	# side1, side2 = ca_distance_cutoff( structure[ 0 ], list( options.side1 ), list( options.side2 ), 10.0 )
-	# side1, side2 = cb_distance_cutoff( structure[ 0 ], list( options.side1 ), list( options.side2 ), 10.0 )
+
+	## As implemented thid script only considers side chain distances. Can easily
+	## be reconfigured for Ca or Cb distances though
+	side1, side2 = sc_distance_cutoff( structure[ 0 ], 
+									   list( options.side1 ),
+									   list( options.side2 ),
+									   float(options.nearby_atom_cutoff) )
 	
-	side_dict = {}
-	side_dict[ '1' ] = sorted( side1, key=lambda res: ( res[1], int(res[0]) ) )
-	side_dict[ '2' ] = sorted( side2, key=lambda res: ( res[1], int(res[0]) ) )
+	side_dict = {
+					'1' : sorted( side1, key=lambda res: ( res[1], int(res[0]) ) ),
+					'2' : sorted( side2, key=lambda res: ( res[1], int(res[0]) ) )
+				}
 
 	opposing_side = '2' if options.design_side == '1' else '1'
 	packer_aas = 'NATAA' if options.native else 'ALLAA'

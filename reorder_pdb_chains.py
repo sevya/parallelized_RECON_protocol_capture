@@ -5,6 +5,12 @@ from optparse import OptionParser, OptionGroup
 from Bio.PDB import *
 import warnings
 
+'''
+@file reorder_pdb_chains.py
+@brief Reorders the chains in a PDB and renumbers them starting from 1,
+also able to assign new chain IDs
+@author Unknown, adapted by Alex Sevy (alex.sevy@gmail.com)
+'''
 usage = "%prog [options] --new_chain_order <comma-delimited list> <input_pdb> <output_pdb>"
 parser=OptionParser(usage)
 parser.add_option("--new_chain_order",dest="new_chain_order",help="the new order of chains. All chains must be specified")
@@ -90,4 +96,3 @@ if options.keep_table:
 		pdb_text_file.write(line)
 		pdb_text_file.write("\n")
 
-##os.system("/sb/meiler/scripts/capture_command.sh " + ' '.join([pipes.quote(x) for x in sys.argv]))

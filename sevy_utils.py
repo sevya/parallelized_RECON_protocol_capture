@@ -3,6 +3,11 @@
 from Bio.PDB import PDBParser
 import gzip, sys
 
+'''
+@file sevy_utils.py
+@brief Utility class for dealing with PDB structures and protein design
+@author Alex Sevy (alex.sevy@gmail.com)
+'''
 class Utils:
 
 	amino_acids = {
@@ -31,14 +36,22 @@ class Utils:
 	}
 
 	'''
-	Returns the one letter code from three letter code 
+	Returns the amino acid one letter code from three letter code 
+
+	@param aa 3 letter code
+
+	@return 1 letter code
 	'''
 	@staticmethod
 	def threetoone( aa ):
 		return amino_acids[ aa ]
 
 	'''
-	Returns the three letter code from one letter code 
+	Returns the amino acid three letter code from one letter code 
+
+	@param aa 1 letter code
+
+	@return 3 letter code
 	'''
 	@staticmethod
 	def onetothree( aa ):
@@ -47,7 +60,11 @@ class Utils:
 
 	'''
 	Gets BioPDB Structure object from a filename
-	takes care of extension handling
+	takes care of extension handling for gz files
+
+	@param filename name of input file
+
+	@return BioPDB structure object
 	'''
 	@staticmethod
 	def get_structure( filename ):
@@ -68,6 +85,10 @@ class Utils:
 	'''
 	Parses a resfile to return an array of designable residues
 	Designable residues are in the format [(1, 'A'), (2, 'A'), ...]
+
+	@param filename of resfile
+
+	@return list of residues in the format of (residue_number,chain)
 	'''
 	@staticmethod
 	def parse_resfile( filename ):
@@ -119,6 +140,12 @@ class Utils:
 	pass in resno *, it will return a string of the one letter codes of all amino acids on
 	the specified chain. Passing wildcard for both chain and resno will return the entire
 	protein sequence
+
+	@param structure BioPDB structure object
+	@param chain Chain of interest
+	@param resno residue index
+
+	@return string of AA sequence for desired positions
 	'''
 	@staticmethod
 	def residue_from_pdb( structure, chain, resno ):

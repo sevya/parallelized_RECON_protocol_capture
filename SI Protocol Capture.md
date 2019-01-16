@@ -157,7 +157,7 @@ msd_brub.xml
 			<MSDMover name="msd3" design_mover="design" post_mover="backrub" constraint_weight="1.5" resfiles="C05.resfile" debug="0" />
 			<MSDMover name="msd4" design_mover="design" post_mover="backrub" constraint_weight="2" resfiles="C05.resfile" debug="0" />
 	
-			<FindConsensusSequence name="finish" scorefxn="talaris2013" resfiles="C05.resfile" debug="1" task_operations="ifcl,repackable" repack_one_res="1" />
+			<FindConsensusSequence name="finish" scorefxn="talaris2013" resfiles="C05.resfile" debug="1" task_operations="ifcl,repackable" />
 	
 			<FastRelax name="rlx" task_operations="ifcl,rtr,rtiv" scorefxn="talaris_rwt" />
 	

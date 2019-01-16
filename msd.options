@@ -11,4 +11,4 @@
 -out:path:pdb models 
 -nstruct 100
 -out:suffix _msd_rlx
-
+-restore_talaris_behavior

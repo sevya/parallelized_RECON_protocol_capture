@@ -7,3 +7,4 @@
 -nstruct 1
 -out:path:pdb C05_templates_relaxed/
 -parser:protocol relax_cst.xml
+-restore_talaris_behavior

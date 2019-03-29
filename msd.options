@@ -4,7 +4,6 @@
 -out:pdb_gz
 -use_input_sc
 -ex1
--run:msd_job_dist
 -mute protocols.simple_moves.GenericMonteCarloMover
 -parser:protocol msd_brub.xml
 -scorefile msd.fasc

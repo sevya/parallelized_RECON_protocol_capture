@@ -1,6 +1,8 @@
 <ROSETTASCRIPTS>
 	<SCOREFXNS>
-		<ScoreFunction name="talaris_rwt" weights="talaris2013_cst.wts" />
+		<ScoreFunction name="talaris_rwt" weights="talaris2013_cst.wts" >
+			<Reweight scoretype="res_type_constraint" weight="1" />
+		</ScoreFunction>
 	</SCOREFXNS>
 	<TASKOPERATIONS>
 		<InitializeFromCommandline name="ifcl" />
@@ -23,7 +25,7 @@
 
 		<FastRelax name="rlx" task_operations="ifcl,rtr,rtiv" scorefxn="talaris_rwt" />
 
-		<FavorSequenceProfile name="fnr" pdbname="C05.pdb" weight="0.25" scaling="prob" matrix="IDENTITY" />
+		<FavorSequenceProfile name="fnr" use_starting="1" weight="0.25" scaling="prob" matrix="IDENTITY" />
 		<ClearConstraintsMover name="clear_cst" />
 
 		<InterfaceAnalyzerMover name="ddg" scorefxn="talaris2013" packstat="0" pack_input="0" pack_separated="1" fixedchains="H,L" />

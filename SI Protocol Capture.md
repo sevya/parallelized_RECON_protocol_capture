@@ -108,7 +108,7 @@ At this point the files are prepared for multistate design of the five complexes
 
 	mkdir models/
 	
-	mpiexec -n 5 \ /path/to/Rosetta/main/source/bin/rosetta_scripts.mpi.linuxgccrelease @msd.options -l templates.list 
+	mpiexec -n 5 \ /path/to/Rosetta/main/source/bin/recon.mpi.linuxgccrelease @msd.options -l templates.list 
 
 templates.list:
 
@@ -126,14 +126,13 @@ msd.options:
 	-out:pdb_gz
 	-use_input_sc
 	-ex1
-	-run:msd_job_dist
-	-nstruct 50
 	-mute protocols.simple_moves.GenericMonteCarloMover
 	-parser:protocol msd_brub.xml
 	-scorefile msd.fasc
 	-out:path:pdb models
 	-nstruct 100
 	-out:suffix _msd_rlx
+	-restore_talaris_behavior
 
 msd_brub.xml
 	
@@ -150,7 +149,7 @@ msd_brub.xml
 		<MOVERS>
 			<Backrub name="backrub_man" pivot_residues="106-118" />
 			<GenericMonteCarlo name="backrub" mover_name="backrub_man" scorefxn_name="talaris2013" trials="500" temperature="0.8" recover_low="1" />
-
+	
 			<PackRotamersMover name="design" scorefxn="talaris_rwt" task_operations="ifcl" />
 	
 			<MSDMover name="msd1" design_mover="design" post_mover="backrub" constraint_weight="0.5" resfiles="C05.resfile" debug="0" />
@@ -162,11 +161,11 @@ msd_brub.xml
 	
 			<FastRelax name="rlx" task_operations="ifcl,rtr,rtiv" scorefxn="talaris_rwt" />
 	
-			<FavorSequenceProfile name="fnr" pdbname="C05_H.pdb" weight="0.25" scaling="prob" matrix="IDENTITY" />
+			<FavorSequenceProfile name="fnr" use_starting="1" weight="0.25" scaling="prob" matrix="IDENTITY" />
 			<ClearConstraintsMover name="clear_cst" />
 	
 			<InterfaceAnalyzerMover name="ddg" scorefxn="talaris2013" packstat="0" pack_input="0" pack_separated="1" fixedchains="H,L" />
-	
+		
 			<AtomCoordinateCstMover name="cst" coord_dev="1.0" />
 			<VirtualRoot name="root" removable="1" />
 			<VirtualRoot name="rmroot" remove="1" />
@@ -185,11 +184,11 @@ msd_brub.xml
 	
 			<Add mover="root" />
 			<Add mover="cst" />
-			<Add mover="rlx" />
+			<Add mover="rlx" />		
 			<Add mover="rmroot" />
 	
 			<Add mover="ddg" />
-	
+			
 			<Add filter="fitness" />
 	
 		</PROTOCOLS>
